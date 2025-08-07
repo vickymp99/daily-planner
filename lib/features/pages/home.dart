@@ -1,14 +1,46 @@
+import 'package:daily_planner/features/pages/newday_planner.dart';
 import 'package:daily_planner/features/widgets/home_widget.dart';
-import'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-class Home extends StatelessWidget{
- const Home({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
-  Widget build(BuildContext context){
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final List<BottomNavigationBarItem> _screeens = [
+    BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+    BottomNavigationBarItem(icon: Icon(Icons.query_stats), label: "Statistics"),
+  ];
+
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
-      body: SafeArea(child: HomeWidget())
+      body: SafeArea(child: HomeTabWidget()),
+      bottomNavigationBar: BottomNavigationBar(
+        items: _screeens,
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NewDayPlanner()),
+        ),
+        elevation: 8.0,
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

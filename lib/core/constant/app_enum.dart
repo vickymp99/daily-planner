@@ -1,0 +1,1 @@
+enum NewDayAddType { time, date }

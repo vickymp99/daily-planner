@@ -1,4 +1,5 @@
 import 'package:daily_planner/features/pages/home.dart';
+import 'package:daily_planner/features/pages/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,9 +16,10 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
       ),
-      home:Home()
+      home:Login()
     );
   }
 }
