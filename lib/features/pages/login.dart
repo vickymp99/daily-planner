@@ -1,4 +1,4 @@
-import 'package:daily_planner/core/utils/common_widgets.dart';
+import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:daily_planner/features/widgets/login_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -9,11 +9,14 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            CommonAppbar(title: "Log in"),
-            LoginWidget(),
-          ],
+        child: SingleChildScrollView(
+
+          child: Column(
+            children: [
+              CommonAppbar(title: "Log in"),
+              LoginWidget(),
+            ],
+          ),
         ),
       ),
     );

@@ -1,1 +1,1 @@
-enum NewDayAddType { time, date }
+enum TextFieldActionType { time, date }

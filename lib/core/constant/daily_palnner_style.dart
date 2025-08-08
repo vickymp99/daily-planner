@@ -2,46 +2,38 @@ import 'package:flutter/material.dart';
 
 class DailyPlannerStyle {
   static TextStyle appbarTitle() {
-    return TextStyle(
+    return TextStyle().copyWith(
       fontSize: 28,
       fontWeight: FontWeight.bold,
-      color: Colors.black,
       fontStyle: FontStyle.italic,
       letterSpacing: 1.0,
     );
   }
 
   static TextStyle labelText() {
-    return TextStyle(
+    return TextStyle().copyWith(
       fontSize: 24,
       fontWeight: FontWeight.bold,
-      color: Colors.black,
       letterSpacing: 1.0,
     );
   }
 
   static TextStyle fieldLabelText() {
-    return TextStyle(
+    return TextStyle().copyWith(
       fontSize: 18,
       fontWeight: FontWeight.w500,
-      color: Colors.black,
       letterSpacing: 1.0,
     );
   }
 
   static TextStyle hintText({Color? color}) {
-    return TextStyle(
-      fontSize: 14,
-      color: color ?? Colors.grey,
-      letterSpacing: 1.0,
-    );
+    return TextStyle().copyWith(fontSize: 14, letterSpacing: 1.0);
   }
 
   static TextStyle buttonText() {
-    return TextStyle(
+    return TextStyle().copyWith(
       fontSize: 18,
       fontWeight: FontWeight.bold,
-      color: Colors.white,
       letterSpacing: 2.0,
     );
   }
@@ -53,12 +45,26 @@ class DailyPlannerStyle {
     double? letterSpace,
     Color? color,
   }) {
-    return TextStyle(
+    return TextStyle().copyWith(
       fontSize: fontSize ?? 14,
       fontWeight: fontWeight,
       fontStyle: fontStyle,
       letterSpacing: letterSpace,
-      color: color ?? Colors.black,
+    );
+  }
+
+
+  static TextStyle cardTitle() {
+    return TextStyle().copyWith(
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 2.0,
+    );
+  }
+
+  static TextStyle cardDesc() {
+    return TextStyle().copyWith(
+      fontSize: 16,
     );
   }
 }

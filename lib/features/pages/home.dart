@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:daily_planner/features/pages/newday_planner.dart';
 import 'package:daily_planner/features/widgets/home_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -21,10 +24,14 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: SafeArea(child: HomeTabWidget()),
+      body: SafeArea(child: Column(
+        children: [
+          CommonAppbar(title: "Home", isLogOut: true, showThemeIcon: true),
+          Expanded(child: HomeTabWidget()),
+        ],
+      )),
       bottomNavigationBar: BottomNavigationBar(
         items: _screeens,
-        backgroundColor: Colors.white,
         elevation: 0.0,
         currentIndex: _currentIndex,
         onTap: (index) {

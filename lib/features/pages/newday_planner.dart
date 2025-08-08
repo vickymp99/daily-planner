@@ -1,4 +1,4 @@
-import 'package:daily_planner/core/utils/common_widgets.dart';
+import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:daily_planner/features/widgets/newday_planner_widget.dart';
 import 'package:flutter/material.dart';
 
