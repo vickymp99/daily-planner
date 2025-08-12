@@ -1,6 +1,8 @@
 import 'package:daily_planner/core/constant/app_theme.dart';
 import 'package:daily_planner/features/cubit/Signin_cubit.dart';
+import 'package:daily_planner/features/cubit/home_cubit.dart';
 import 'package:daily_planner/features/cubit/login_cubit.dart';
+import 'package:daily_planner/features/cubit/newday_plan_cubit.dart';
 import 'package:daily_planner/features/pages/home.dart';
 import 'package:daily_planner/features/pages/login.dart';
 import 'package:daily_planner/firebase_options.dart';
@@ -18,6 +20,8 @@ Future<void> main() async {
         BlocProvider(create: (context) => LoginCubit()),
         BlocProvider(create: (context) => SignInCubit()),
         BlocProvider(create: (context) => ThemeCubit()),
+        BlocProvider(create: (context) => NewDayPlanCubit()),
+        BlocProvider(create: (context) => HomeCubit()),
       ],
 
       child: const MyApp(),

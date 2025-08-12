@@ -128,16 +128,18 @@ class _SignIn extends StatelessWidget {
           ],
         ),
         Text("Or Sign in Using"),
-        SizedBox(height: 12,),
+        SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-                width: 30,
-                height: 30,
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(48),
-                    child: Image.asset("assets/images/google.png")))
+              width: 30,
+              height: 30,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(48),
+                child: Image.asset("assets/images/google.png"),
+              ),
+            ),
           ],
         ),
       ],

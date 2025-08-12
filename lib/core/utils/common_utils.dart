@@ -2,19 +2,32 @@ import 'package:daily_planner/core/constant/app_enum.dart';
 import 'package:daily_planner/core/constant/app_theme.dart';
 import 'package:daily_planner/core/constant/daily_palnner_style.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+
+void appDebugPrint(Object? object) {
+  if (kDebugMode) {
+    print(object);
+  }
+}
 
 class CommonUtils {
-  static snackBar(BuildContext context, {String msg = "Error"}) {
+  static snackBar(BuildContext context, {String? msg}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsetsGeometry.all(8.0),
-        content: Text("$msg"),
+        content: Text(msg ?? ""),
       ),
     );
+  }
+
+  static String formatDate(String formatString, String date) {
+    DateTime localDate = DateTime.parse(date);
+    return DateFormat(formatString).format(localDate);
   }
 
   static logOut(BuildContext context) async {
@@ -90,7 +103,7 @@ class CommonAppbar extends StatelessWidget {
 
             tooltip: "log out",
           ),
-        if(showThemeIcon)
+        if (showThemeIcon)
           IconButton(
             iconSize: 40,
             onPressed: () => BlocProvider.of<ThemeCubit>(context).toggleTheme(),
@@ -145,6 +158,9 @@ class CommonTextField extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
           ),
         ),
       ),
@@ -170,62 +186,120 @@ class CommonTextField extends StatelessWidget {
       lastDate: DateTime(DateTime.now().year + 50, 12, 31),
     ).then((val) {
       if (val != null && onTap != null) {
-        _textFieldController.text = val.toString();
+        _textFieldController.text = CommonUtils.formatDate(
+          "d MMM yyyy",
+          val.toString(),
+        );
         onTap!(_textFieldController.text);
       }
     });
   }
 
-  // choose the time for particular action
   _timeChooseSheet(BuildContext context) async {
-    await showModalBottomSheet(
-      backgroundColor: Colors.white,
+    final TextEditingController controller = TextEditingController();
+    String timeString = "AM";
+    await showDialog(
       context: context,
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(50.0),
-              child: SizedBox(
-                height: 140,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Column(
-                        children: List.generate(
-                          _time.length,
-                          (index) => Text(
-                            "${_time[index]}",
-                            style: DailyPlannerStyle.normalText(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 70,
+        return StatefulBuilder(
+          builder: (innerContext, innerState) {
+            return AlertDialog(
+              title: Text("Choose time"),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    height: 50,
+                    child: TextField(
+                      controller: controller,
+                      showCursor: false,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      style: DailyPlannerStyle.normalText(fontSize: 20),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  InkWell(
+                    onTap: () {
+                      innerState(() {
+                        timeString == "AM"
+                            ? timeString = "PM"
+                            : timeString = "AM";
+                      });
+                    },
+                    child: Container(
+                      width: 100,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.grey, // Color of the border
+                          width: 2.0, // Thickness of the border
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              timeString,
+                              style: DailyPlannerStyle.normalText(fontSize: 20),
                             ),
-                          ),
+
+                            // Icon(Icons.keyboard_arrow_up),
+                          ],
                         ),
                       ),
                     ),
-                    SizedBox(width: 32.0),
-                    // SingleChildScrollView(
-                    //   scrollDirection: Axis.vertical,
-                    //   child: Column(
-                    //     children: List.generate(
-                    //       _time.length,
-                    //           (index) => Text("${_time[index]}"),
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
+                  ),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    try {
+                      if (controller.text.isNotEmpty &&
+                          int.parse(controller.text.trim()).runtimeType ==
+                              int) {
+                        Navigator.pop(context, {
+                          "time": controller.text.trim(),
+                          "denote": timeString,
+                        });
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    } catch (e) {
+                      appDebugPrint(e);
+                      CommonUtils.snackBar(context, msg: "Enter correct value");
+                    }
+                  },
+                  child: Text("Ok"),
+                ),
+              ],
+              icon: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(Icons.cancel_outlined),
                 ),
               ),
-            ),
-            SizedBox(height: 50),
-          ],
+            );
+          },
         );
       },
-    );
+    ).then((val) {
+      if (val != null && onTap != null) {
+        appDebugPrint("$val");
+        _textFieldController.text = "${val["time"]} ${val["denote"]}";
+        onTap!(_textFieldController.text);
+      }
+    });
   }
 }
 

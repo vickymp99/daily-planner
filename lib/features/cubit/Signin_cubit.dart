@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:daily_planner/features/usecase/login_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,7 +29,6 @@ class SignInCubit extends Cubit<SignInState> {
       } else {
         emit(SignInErrorState(msg: result.toString()));
       }
-      // emitState(SignInSuccessState());
     } else {
       emitState(SignInErrorState(msg: "Enter details correctly"));
     }
@@ -48,6 +48,12 @@ class SignInCubit extends Cubit<SignInState> {
   emitState(SignInState state) {
     emit(state);
     emit(_SignInChangeState());
+  }
+
+  @override
+  void onChange(Change<SignInState> change) {
+    super.onChange(change);
+    appDebugPrint("Change $change");
   }
 }
 

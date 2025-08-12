@@ -19,17 +19,50 @@ class _HomeState extends State<Home> {
   ];
 
   int _currentIndex = 0;
+  String name = "";
+  @override
+  void initState() {
+    super.initState();
+    appDebugPrint("Current user id: ${FirebaseAuth.instance.currentUser!.uid}");
+    getName();
+  }
+
+  Future<void> getName() async {
+    var data = await FirebaseFirestore.instance
+        .collection('user-details')
+        .get();
+    if (data.docs
+        .where((val) {
+          return val["id"] == FirebaseAuth.instance.currentUser!.uid;
+        })
+        .isNotEmpty) {
+      QueryDocumentSnapshot<Map<String, dynamic>> userQuery = data.docs.where((
+        val,
+      ) {
+        return val["id"] == FirebaseAuth.instance.currentUser!.uid;
+      }).first;
+      setState(() {
+        name = userQuery['name'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: SafeArea(child: Column(
-        children: [
-          CommonAppbar(title: "Home", isLogOut: true, showThemeIcon: true),
-          Expanded(child: HomeTabWidget()),
-        ],
-      )),
+      body: SafeArea(
+        child: Column(
+          children: [
+            CommonAppbar(
+              title: "Welcome ${name.toUpperCase()}",
+              isLogOut: true,
+              showThemeIcon: true,
+            ),
+            Expanded(child: HomeTabWidget()),
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: _screeens,
         elevation: 0.0,
