@@ -1,14 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:daily_planner/core/utils/data_repository.dart';
-import 'package:daily_planner/core/utils/firebase_service.dart';
 import 'package:daily_planner/core/utils/common_utils.dart';
-import 'package:daily_planner/features/cubit/home_cubit.dart';
 import 'package:daily_planner/features/pages/newday_planner.dart';
 import 'package:daily_planner/features/widgets/home_widget.dart';
 import 'package:daily_planner/features/widgets/statistics_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

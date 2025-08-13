@@ -146,8 +146,6 @@ class CommonTextField extends StatelessWidget {
   });
 
   final _textFieldController = TextEditingController();
-  final List<int> _time = [for (int i = 1; i <= 24; i++) i];
-
   @override
   Widget build(BuildContext context) {
     return Padding(

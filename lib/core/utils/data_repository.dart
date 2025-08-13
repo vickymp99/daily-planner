@@ -23,7 +23,7 @@ class DataRepository {
 
   List<PlanModel> convertList(QuerySnapshot<Map<String, dynamic>> list) {
     List<Map<String, dynamic>> ll = list.docs.map((map) => map.data()).toList();
-    List<String> ll2 = list.docs.map((map) => map.id as String).toList();
+    List<String> ll2 = list.docs.map((map) => map.id).toList();
     appDebugPrint("ll2222..$ll2 ${ll2.length}");
     appDebugPrint("ll..  ${ll.length} $ll ");
     int i = 0;

@@ -3,8 +3,6 @@ import 'package:daily_planner/core/utils/firebase_service.dart';
 import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginCubit extends Cubit<LoginState> {
@@ -17,7 +15,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     if (_checkCredential(formatUserName, formatPassword)) {
       try {
-        final user = await FirebaseAuth.instance
+        await FirebaseAuth.instance
             .signInWithEmailAndPassword(
               email: formatUserName,
               password: formatPassword,
@@ -40,12 +38,6 @@ class LoginCubit extends Cubit<LoginState> {
     } else {
       emitState(LoginErrorState(msg: "Enter correct userName / Password"));
     }
-  }
-
-  // Sign in User
-  signInUser(String userName, String password) {
-    String formatUserName = userName.trim();
-    String formatPassword = password.trim();
   }
 
   bool _checkCredential(String name, String password) {

@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:daily_planner/core/constant/app_local_storage_constant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hive/hive.dart';
 
 class FirebaseService {
   FirebaseService();
