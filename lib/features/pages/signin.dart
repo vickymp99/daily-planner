@@ -7,11 +7,13 @@ class SignIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: SafeArea(child: Column(
-      children: [
-        CommonAppbar(title: "Sign In"),
-         SignInWidget(),
-      ],
+    return Scaffold(body: SafeArea(child: SingleChildScrollView(
+      child: Column(
+        children: [
+          CommonAppbar(title: "Sign In"),
+           SignInWidget(),
+        ],
+      ),
     )));
   }
 }

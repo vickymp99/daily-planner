@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:daily_planner/core/constant/daily_palnner_style.dart';
 import 'package:daily_planner/core/utils/common_utils.dart';
+import 'package:daily_planner/core/utils/hive_service.dart';
 import 'package:daily_planner/features/cubit/home_cubit.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:daily_planner/features/data/model/plan_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HomeTabWidget extends StatefulWidget {
   const HomeTabWidget({super.key});
@@ -15,41 +15,34 @@ class HomeTabWidget extends StatefulWidget {
 }
 
 class _HomeTabWidgetState extends State<HomeTabWidget> {
+  List<PlanModel> plans = [];
   @override
   void initState() {
     BlocProvider.of<HomeCubit>(context).emitState(HomeSuccessState());
     super.initState();
   }
 
+  void refreshPage() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     // initialize cubit
     final homeCubit = BlocProvider.of<HomeCubit>(context);
+
     return BlocBuilder<HomeCubit, HomeState>(
-      buildWhen: (pre, cur) => cur is HomeSuccessState,
       builder: (context, state) {
         if (state is HomeSuccessState) {
-          final dateFormat = DateFormat("dd MMM yyyy");
-          return StreamBuilder(
-            stream: FirebaseFirestore.instance
-                .collection('day-plan')
-                .where(
-                  'uID',
-                  isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-                ) // filter current user docs
-                .snapshots()
-                .map((snapshot) {
-                  return snapshot.docs
-                      .map((doc) => doc['date'] as String) // only `date` field
-                      .toList();
-                }),
-            builder: (context, parentSnap) {
-              if (parentSnap.connectionState == ConnectionState.waiting) {
-                return SizedBox();
-              } else if (parentSnap.hasData && parentSnap.data!.isNotEmpty) {
-                parentSnap.data!.sort(
-                  (a, b) => dateFormat.parse(a).compareTo(dateFormat.parse(b)),
-                );
+          return ValueListenableBuilder<Box<PlanModel>>(
+            valueListenable: HiveService.userPlan.listenable(),
+            builder: (context, box, Widget? child) {
+              // set initial value from hive
+              final rawList =box.values.toList();
+               plans = rawList;
+               appDebugPrint("final plans $plans");
+              homeCubit.initPlan(state: state, list: plans);
+              if (plans.isNotEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Column(
@@ -59,17 +52,18 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
                           child: Row(
                             children: List.generate(
                               growable: true,
-                              parentSnap.data!.length,
+                              state.dates.length,
                               (dateIndex) {
                                 return GestureDetector(
                                   onTap: () {
                                     homeCubit.updateIndex(
                                       state: state,
                                       indexValue: dateIndex,
+                                      plans: plans,
                                     );
                                   },
                                   child: Card(
@@ -81,15 +75,21 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16.0),
                                       side: BorderSide(
-                                        color: Colors.grey.shade300,
+                                        color: state.index == dateIndex
+                                            ? Colors.blueAccent.shade100
+                                            : Colors.grey.shade300,
                                       ),
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: SizedBox(
-                                        width: 35,
+                                        width: 40,
                                         child: Text(
-                                          parentSnap.data![dateIndex],
+                                          state.dates[dateIndex],
+                                          style: DailyPlannerStyle.normalText(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
@@ -103,62 +103,38 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                       ),
                       SizedBox(height: 8.0),
                       // plan list widget
-                      StreamBuilder(
-                        stream: FirebaseFirestore.instance
-                            .collection('day-plan')
-                            .where(
-                              'uID',
-                              isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-                            )
-                            .where(
-                              ("date"),
-                              isEqualTo: parentSnap.data![state.index],
-                            )
-                            .snapshots(),
-                        builder: (context, childSnap) {
-                          if (childSnap.connectionState ==
-                              ConnectionState.waiting) {
-                            return SizedBox();
-                          } else if (childSnap.hasData &&
-                              (childSnap.data!.docs[0]["plan"]
-                                      as List) // index value always "0" here, because there is always unique and one date
-                                  .isNotEmpty) {
-                            return Expanded(
-                              child: SizedBox(
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount:
-                                      childSnap.data!.docs[0]["plan"].length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        16.0,
-                                        4.0,
-                                        16.0,
-                                        0.0,
-                                      ),
-                                      child: _DateCardWidget(
-                                        data: childSnap
-                                            .data!
-                                            .docs[0]["plan"][index],
-                                        docID: childSnap.data!.docs[0],
-                                      ),
-                                    );
-                                  },
+                      Expanded(
+                        child: SizedBox(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: state.plans.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16.0,
+                                  4.0,
+                                  16.0,
+                                  0.0,
                                 ),
-                              ),
-                            );
-                          }
-                          return SizedBox(child: Text("No data"));
-                        },
+                                child: _DateCardWidget(
+                                  data: state.plans[index],
+                                  docId: homeCubit.getId(
+                                    plans,
+                                    state.dates[state.index],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
                       SizedBox(height: 12.0),
                     ],
                   ),
                 );
               } else {
-                return SizedBox(
-                  child: Center(
+                return Center(
+                  child: SizedBox(
                     child: Text(
                       "No data",
                       style: DailyPlannerStyle.labelText(),
@@ -169,13 +145,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             },
           );
         } else {
-          return Center(
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return SizedBox();
         }
       },
     );
@@ -183,20 +153,19 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 }
 
 class _DateCardWidget extends StatelessWidget {
-  final Map<String, dynamic> data;
-  final QueryDocumentSnapshot<Map<String, dynamic>> docID;
-
-  const _DateCardWidget({required this.data, required this.docID});
+  final PlanListModel data;
+  final String docId;
+  const _DateCardWidget({required this.data, required this.docId});
 
   @override
   Widget build(BuildContext context) {
+    appDebugPrint("id is ${docId}");
     return GestureDetector(
       onLongPress: () {},
       onTap: () {
-        appDebugPrint(data["status"]);
         BlocProvider.of<HomeCubit>(
           context,
-        ).statusUpdate(status: data["status"], docID: docID, key: data["time"]);
+        ).statusUpdate(planModel: data, docId: docId);
       },
       child: Card(
         elevation: 4.0,
@@ -209,7 +178,7 @@ class _DateCardWidget extends StatelessWidget {
           padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
-              Text(data["time"], style: DailyPlannerStyle.fieldLabelText()),
+              Text(data.time, style: DailyPlannerStyle.fieldLabelText()),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Container(
@@ -225,21 +194,16 @@ class _DateCardWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      data["title"].toString().toUpperCase(),
+                      data.title.toString().toUpperCase(),
                       style: DailyPlannerStyle.cardTitle(),
                     ),
                     SizedBox(height: 8.0),
-                    Text(
-                      data["description"],
-                      style: DailyPlannerStyle.cardDesc(),
-                    ),
+                    Text(data.desc, style: DailyPlannerStyle.cardDesc()),
                   ],
                 ),
               ),
               SizedBox(width: 8.0),
-              BlocProvider.of<HomeCubit>(
-                        context,
-                      ).getImageString(data["status"]) !=
+              BlocProvider.of<HomeCubit>(context).getImageString(data.status) !=
                       null
                   ? SizedBox(
                       height: 30,
@@ -249,7 +213,7 @@ class _DateCardWidget extends StatelessWidget {
                         child: Image.asset(
                           (BlocProvider.of<HomeCubit>(
                             context,
-                          ).getImageString(data["status"]))!,
+                          ).getImageString(data.status))!,
                         ),
                       ),
                     )

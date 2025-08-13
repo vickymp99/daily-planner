@@ -20,8 +20,7 @@ class NewDayPlannerWidget extends StatelessWidget {
         if (state is NewDayPlanSuccessState) {
           if (state.msg != null) {
             CommonUtils.snackBar(context, msg: state.msg);
-          }
-          else if(state is NewDayPlanErrorState){
+          } else if (state is NewDayPlanErrorState) {
             CommonUtils.snackBar(context, msg: state.msg);
           }
         }
@@ -42,7 +41,7 @@ class NewDayPlannerWidget extends StatelessWidget {
                   },
                 ),
                 CommonTextField(
-                  hintText: "Description",
+                  hintText: "Description(optional)",
                   onChanged: (value) {
                     _desc = value.trim();
                   },
@@ -66,14 +65,24 @@ class NewDayPlannerWidget extends StatelessWidget {
                 SizedBox(height: 32),
                 CommonElevatedButton(
                   onPressed: () async {
-                    BlocProvider.of<NewDayPlanCubit>(context).addPlan(
-                      NewDayPlanUseCase(
-                        title: _title,
-                        desc: _desc,
-                        date: _date,
-                        time: _time,
-                      ),
-                    );
+                    // allow only if all value is filled
+                    if (_title.isNotEmpty &&
+                        _date.isNotEmpty &&
+                        _time.isNotEmpty) {
+                      BlocProvider.of<NewDayPlanCubit>(context).addPlan(
+                        NewDayPlanUseCase(
+                          title: _title,
+                          desc: _desc,
+                          date: _date,
+                          time: _time,
+                        ),
+                      );
+                    } else {
+                      CommonUtils.snackBar(
+                        context,
+                        msg: "Enter value correctly",
+                      );
+                    }
                   },
                   text: "Add",
                 ),

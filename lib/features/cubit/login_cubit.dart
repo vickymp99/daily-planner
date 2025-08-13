@@ -1,3 +1,6 @@
+import 'package:daily_planner/core/utils/data_repository.dart';
+import 'package:daily_planner/core/utils/firebase_service.dart';
+import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,15 +17,23 @@ class LoginCubit extends Cubit<LoginState> {
 
     if (_checkCredential(formatUserName, formatPassword)) {
       try {
-        final user = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: formatUserName,
-          password: formatPassword,
-        );
-        if (user is UserCredential) {
-          emit(LoginSuccessState());
-        } else {
-          emitState(LoginErrorState(msg: user.toString()));
-        }
+        final user = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+              email: formatUserName,
+              password: formatPassword,
+            )
+            .then((val) {
+              appDebugPrint("Calls");
+              final dataRepository = DataRepository(FirebaseService());
+              dataRepository.listenChanges();
+              dataRepository.initLoad();
+            });
+
+        // if (user is UserCredential) {
+        //   emit(LoginSuccessState());
+        // } else {
+        //   emitState(LoginErrorState(msg: user.toString()));
+        // }
       } catch (e) {
         emitState(LoginErrorState(msg: e.toString()));
       }

@@ -1,9 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:daily_planner/core/utils/data_repository.dart';
+import 'package:daily_planner/core/utils/firebase_service.dart';
 import 'package:daily_planner/core/utils/common_utils.dart';
+import 'package:daily_planner/features/cubit/home_cubit.dart';
 import 'package:daily_planner/features/pages/newday_planner.dart';
 import 'package:daily_planner/features/widgets/home_widget.dart';
+import 'package:daily_planner/features/widgets/statistics_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -24,6 +29,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     appDebugPrint("Current user id: ${FirebaseAuth.instance.currentUser!.uid}");
+
     getName();
   }
 
@@ -31,19 +37,17 @@ class _HomeState extends State<Home> {
     var data = await FirebaseFirestore.instance
         .collection('user-details')
         .get();
-    if (data.docs
-        .where((val) {
-          return val["id"] == FirebaseAuth.instance.currentUser!.uid;
-        })
-        .isNotEmpty) {
+    if (data.docs.where((val) {
+      return val["id"] == FirebaseAuth.instance.currentUser!.uid;
+    }).isNotEmpty) {
       QueryDocumentSnapshot<Map<String, dynamic>> userQuery = data.docs.where((
         val,
       ) {
         return val["id"] == FirebaseAuth.instance.currentUser!.uid;
       }).first;
-      setState(() {
-        name = userQuery['name'];
-      });
+      // setState(() {
+      name = userQuery['name'];
+      // });
     }
   }
 
@@ -52,16 +56,25 @@ class _HomeState extends State<Home> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: SafeArea(
-        child: Column(
-          children: [
-            CommonAppbar(
-              title: "Welcome ${name.toUpperCase()}",
-              isLogOut: true,
-              showThemeIcon: true,
-            ),
-            Expanded(child: HomeTabWidget()),
-          ],
-        ),
+        child: _currentIndex == 0
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CommonAppbar(
+                    title: "Welcome ${name.toUpperCase()}",
+                    isLogOut: true,
+                    showThemeIcon: true,
+                  ),
+                  Expanded(child: HomeTabWidget()),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CommonAppbar(title: "Statistics"),
+                  Expanded(child: StatisticsWidget()),
+                ],
+              ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: _screeens,
@@ -73,14 +86,16 @@ class _HomeState extends State<Home> {
           });
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => NewDayPlanner()),
-        ),
-        elevation: 8.0,
-        child: Icon(Icons.add),
-      ),
+      floatingActionButton: _currentIndex == 0
+          ? FloatingActionButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NewDayPlanner()),
+              ),
+              elevation: 8.0,
+              child: Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

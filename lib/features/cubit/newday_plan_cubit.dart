@@ -49,7 +49,7 @@ class NewDayPlanCubit extends Cubit<NewDayPlanState> {
     bool isDateExist = cDocs.any(
       (map) => map.data().containsValue(planDetail.date),
     );
-    appDebugPrint(isDateExist);
+    appDebugPrint("isDateExist $isDateExist");
     // if date exist update value or else add the value
     if (isDateExist) {
       QueryDocumentSnapshot<Map<String, dynamic>> docId = cDocs

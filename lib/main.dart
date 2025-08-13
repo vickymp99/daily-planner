@@ -1,8 +1,14 @@
 import 'package:daily_planner/core/constant/app_theme.dart';
+import 'package:daily_planner/core/utils/common_utils.dart';
+import 'package:daily_planner/core/utils/data_repository.dart';
+import 'package:daily_planner/core/utils/firebase_service.dart';
+import 'package:daily_planner/core/utils/hive_service.dart';
 import 'package:daily_planner/features/cubit/Signin_cubit.dart';
 import 'package:daily_planner/features/cubit/home_cubit.dart';
 import 'package:daily_planner/features/cubit/login_cubit.dart';
 import 'package:daily_planner/features/cubit/newday_plan_cubit.dart';
+import 'package:daily_planner/features/cubit/statistics_cubit.dart';
+import 'package:daily_planner/features/data/model/plan_model.dart';
 import 'package:daily_planner/features/pages/home.dart';
 import 'package:daily_planner/features/pages/login.dart';
 import 'package:daily_planner/firebase_options.dart';
@@ -10,10 +16,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Hive.initFlutter();
+  Hive.registerAdapter(PlanModelAdapter());
+  Hive.registerAdapter(PlanListModelAdapter());
+  await HiveService.init();
+
   runApp(
     MultiBlocProvider(
       providers: [
@@ -22,6 +34,7 @@ Future<void> main() async {
         BlocProvider(create: (context) => ThemeCubit()),
         BlocProvider(create: (context) => NewDayPlanCubit()),
         BlocProvider(create: (context) => HomeCubit()),
+        BlocProvider(create: (context) => StatisticsCubit()),
       ],
 
       child: const MyApp(),

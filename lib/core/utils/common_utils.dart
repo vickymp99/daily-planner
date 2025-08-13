@@ -1,6 +1,7 @@
 import 'package:daily_planner/core/constant/app_enum.dart';
 import 'package:daily_planner/core/constant/app_theme.dart';
 import 'package:daily_planner/core/constant/daily_palnner_style.dart';
+import 'package:daily_planner/core/utils/hive_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -64,8 +65,9 @@ class CommonUtils {
           ],
         );
       },
-    ).then((val) {
+    ).then((val) async {
       if (val != null && val) {
+        await HiveService.userPlan.clear();
         FirebaseAuth.instance.signOut();
       }
     });
@@ -76,12 +78,14 @@ class CommonAppbar extends StatelessWidget {
   final String title;
   final bool isLogOut;
   final bool showThemeIcon;
+  final bool leadingIcon;
 
   const CommonAppbar({
     super.key,
     required this.title,
     this.isLogOut = false,
     this.showThemeIcon = false,
+    this.leadingIcon = false,
   });
 
   @override
@@ -94,13 +98,18 @@ class CommonAppbar extends StatelessWidget {
       //     bottomLeft: Radius.circular(16.0),bottomRight: Radius.circular(16.0))),
       // backgroundColor: Colors.yellow,
       backgroundColor: Colors.transparent,
+      leading: leadingIcon
+          ? Padding(
+              padding: const EdgeInsets.only(left: 12.0),
+              child: Icon(Icons.arrow_back_ios, size: 30),
+            )
+          : null,
       actions: [
         if (isLogOut)
           IconButton(
             iconSize: 40,
             onPressed: () => CommonUtils.logOut(context),
             icon: Icon(Icons.person),
-
             tooltip: "log out",
           ),
         if (showThemeIcon)
@@ -151,7 +160,9 @@ class CommonTextField extends StatelessWidget {
           controller: _textFieldController,
           onChanged: onChanged,
           enabled: enable,
+          maxLength: 50,
           decoration: InputDecoration(
+            counterText: !enable ? "" : null,
             prefixIcon: icon,
             labelText: hintText,
             labelStyle: DailyPlannerStyle.hintText(color: Colors.red.shade800),
@@ -182,7 +193,8 @@ class CommonTextField extends StatelessWidget {
   _pickDate(BuildContext context) async {
     await showDatePicker(
       context: context,
-      firstDate: DateTime(DateTime.now().year - 50, 1, 1),
+      // firstDate: DateTime(DateTime.now().year - 50, 1, 1),
+      firstDate: DateTime.now(),
       lastDate: DateTime(DateTime.now().year + 50, 12, 31),
     ).then((val) {
       if (val != null && onTap != null) {
@@ -199,6 +211,7 @@ class CommonTextField extends StatelessWidget {
     final TextEditingController controller = TextEditingController();
     String timeString = "AM";
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -262,15 +275,25 @@ class CommonTextField extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     try {
+                      // condition for check text value must there and it is integer
                       if (controller.text.isNotEmpty &&
                           int.parse(controller.text.trim()).runtimeType ==
                               int) {
-                        Navigator.pop(context, {
-                          "time": controller.text.trim(),
-                          "denote": timeString,
-                        });
-                      } else {
-                        Navigator.pop(context);
+                        // condition for check value must be 1 above and should be less than 12
+                        if (int.parse(controller.text) >= 1 &&
+                            (int.parse(controller.text) <= 12)) {
+                          Navigator.pop(context, {
+                            "time": controller.text.trim(),
+                            "denote": timeString,
+                          });
+                        }
+                        // tell user to give value between 1 and 12
+                        else {
+                          CommonUtils.snackBar(
+                            context,
+                            msg: "Enter correct value between 1 and 12",
+                          );
+                        }
                       }
                     } catch (e) {
                       appDebugPrint(e);
@@ -286,7 +309,7 @@ class CommonTextField extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.cancel_outlined),
+                  icon: Icon(Icons.cancel, size: 35),
                 ),
               ),
             );
