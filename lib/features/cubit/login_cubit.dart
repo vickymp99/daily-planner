@@ -8,6 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(LoginInitialState());
 
+  bool isVisibility = false;
+
   // Login User
   loginUser(String userName, String password) async {
     String formatUserName = userName.trim();
@@ -49,9 +51,27 @@ class LoginCubit extends Cubit<LoginState> {
         : false;
   }
 
+  changeVisibility(bool value) {
+    isVisibility = value;
+    emitState(state);
+  }
+
+  forgotPassword(String email) async {
+    if (!email.contains("@")) return;
+    final String formatEmail = email.trim();
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: formatEmail);
+      emitState(
+        LoginErrorState(msg: "Password reset email sent to $formatEmail"),
+      );
+    } on FirebaseAuthException catch (e) {
+      emitState(LoginErrorState(msg: "Error: ${e.message}"));
+    }
+  }
+
   emitState(LoginState state) {
-    emit(state);
     emit(_LoginChangeState());
+    emit(state);
   }
 }
 
@@ -79,6 +99,12 @@ class LoginSuccessState extends LoginState {
 }
 
 class LoginBuildState extends LoginState {
+  bool isVisibility = false;
+
+  changeVisibility(bool value) {
+    isVisibility = value;
+  }
+
   @override
   List<Object?> get props => [];
 }

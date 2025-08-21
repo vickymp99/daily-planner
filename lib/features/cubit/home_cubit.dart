@@ -4,6 +4,7 @@ import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:daily_planner/features/data/model/plan_model.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeInitialState());
@@ -43,12 +44,7 @@ class HomeCubit extends Cubit<HomeState> {
     } else if (planModel.status == PlanStatus.notComplete.name) {
       updatedStaus = PlanStatus.notStart.name;
     }
-    appDebugPrint("Docid : ${docId}");
-    appDebugPrint("time : ${planModel.time}");
-    // await FirebaseFirestore.instance
-    //     .collection("day-plan")
-    //     .doc(docId)
-    //     .update({}); // filter current user docs
+    appDebugPrint("Docid : ${docId} time : ${planModel.time}");
 
     Map<String, dynamic> currentMap = {
       "time": planModel.time,
@@ -78,13 +74,14 @@ class HomeCubit extends Cubit<HomeState> {
 
   initPlan({required HomeSuccessState state, required List<PlanModel> list}) {
     state.setInitValue(list);
-    // emitState(state);
   }
 
   String getId(List<PlanModel> list, String date) {
-    appDebugPrint(date);
+    // appDebugPrint(date);
     return list.where((x) => x.date == date).toList().first.id;
   }
+
+
 }
 
 abstract class HomeState extends Equatable {}
@@ -107,7 +104,7 @@ class HomeSuccessState extends HomeState {
   HomeSuccessState();
 
   updateIndex(int indexValue, List<PlanModel> list) {
-    appDebugPrint(indexValue);
+    // appDebugPrint(indexValue);
     index = indexValue;
     plans = list
         .where((element) => element.date == dates[index])
@@ -123,6 +120,10 @@ class HomeSuccessState extends HomeState {
           .where((element) => element.date == dates[index])
           .first
           .planList;
+      DateFormat format = DateFormat("hh a");
+      plans.sort(
+        (a, b) => format.parse(a.time).compareTo(format.parse(b.time)),
+      );
     }
 
     // appDebugPrint("dates..$dates");

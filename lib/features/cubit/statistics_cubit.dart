@@ -14,11 +14,12 @@ class StatisticsCubit extends Cubit<StatisticsState> {
 
   updateIndex({
     required StatisticsSuccessState state,
-    required int indexValue
+    required int indexValue,
   }) {
     state.updateIndex(indexValue);
     emitState(state);
   }
+
   initPlan({
     required StatisticsSuccessState state,
     required List<PlanModel> list,
@@ -58,34 +59,36 @@ class StatisticsSuccessState extends StatisticsState {
   setInitValue(List<PlanModel> userList) {
     dates = userList.map((element) => element.date).toList();
     dates.sort((a, b) => a.compareTo(b));
-    PlanModel model = userList
-        .where((map) => map.date == dates[index])
-        .toList()
-        .first;
-    count.addEntries([
-      MapEntry("total", model.planList.length),
-      MapEntry(
-        "completed",
-        model.planList
-            .where((map) => map.status == PlanStatus.completed.name)
-            .toList()
-            .length,
-      ),
-      MapEntry(
-        "notCompleted",
-        model.planList
-            .where((map) => map.status == PlanStatus.notComplete.name)
-            .toList()
-            .length,
-      ),
-      MapEntry(
-        "notStart",
-        model.planList
-            .where((map) => map.status == PlanStatus.notStart.name)
-            .toList()
-            .length,
-      ),
-    ]);
+    if (userList.isNotEmpty) {
+      PlanModel model = userList
+          .where((map) => map.date == dates[index])
+          .toList()
+          .first;
+      count.addEntries([
+        MapEntry("total", model.planList.length),
+        MapEntry(
+          "completed",
+          model.planList
+              .where((map) => map.status == PlanStatus.completed.name)
+              .toList()
+              .length,
+        ),
+        MapEntry(
+          "notCompleted",
+          model.planList
+              .where((map) => map.status == PlanStatus.notComplete.name)
+              .toList()
+              .length,
+        ),
+        MapEntry(
+          "notStart",
+          model.planList
+              .where((map) => map.status == PlanStatus.notStart.name)
+              .toList()
+              .length,
+        ),
+      ]);
+    }
   }
 
   @override

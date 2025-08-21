@@ -50,6 +50,7 @@ class NewDayPlannerWidget extends StatelessWidget {
                   hintText: "Date",
                   type: TextFieldActionType.date,
                   enable: false,
+                  showFromTodayDate: true,
                   onTap: (value) {
                     _date = value.trim();
                   },

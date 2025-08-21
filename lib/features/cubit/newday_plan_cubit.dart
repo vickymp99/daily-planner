@@ -41,24 +41,57 @@ class NewDayPlanCubit extends Cubit<NewDayPlanState> {
         await FirebaseFirestore.instance.collection("day-plan").get().then((
           val,
         ) {
-          return val.docs.where((element) {
-            return element["uID"] == FirebaseAuth.instance.currentUser!.uid;
-          }).toList();
+          if (val.docs.isNotEmpty) {
+            return val.docs.where((element) {
+              return element["uID"] == FirebaseAuth.instance.currentUser!.uid;
+            }).toList();
+          } else {
+            return [];
+          }
         });
     // check the date is already exist or not
     bool isDateExist = cDocs.any(
       (map) => map.data().containsValue(planDetail.date),
     );
+
     appDebugPrint("isDateExist $isDateExist");
     // if date exist update value or else add the value
     if (isDateExist) {
-      QueryDocumentSnapshot<Map<String, dynamic>> docId = cDocs
+      QueryDocumentSnapshot<Map<String, dynamic>> doc = cDocs
           .where((map) => map.data()["date"] == planDetail.date)
           .first;
-      appDebugPrint(docId.id);
+      List<dynamic> planList = doc.data()["plan"];
+      // check list the time already exist,if it is remove the old plan with particular time and
+      // update with new one
+      // otherwise add new value to fireabse
+      if (planList.isNotEmpty) {
+        bool isTimeExist = planList.any(
+          (map) => map.containsValue(planDetail.time),
+        );
+        if (planList
+            .where((map) => map["time"] == planDetail.time)
+            .toList()
+            .isNotEmpty) {
+          Map oldValue = planList
+              .where((map) => map["time"] == planDetail.time)
+              .toList()
+              .first;
+          appDebugPrint("id ${doc.id} time $isTimeExist");
+          appDebugPrint("map $oldValue");
+          if (isTimeExist) {
+            await FirebaseFirestore.instance
+                .collection("day-plan")
+                .doc(doc.id)
+                .update({
+                  "plan": FieldValue.arrayRemove([oldValue]),
+                });
+          }
+        }
+      }
+
       await FirebaseFirestore.instance
           .collection('day-plan')
-          .doc(docId.id)
+          .doc(doc.id)
           .update({
             'plan': FieldValue.arrayUnion([
               {

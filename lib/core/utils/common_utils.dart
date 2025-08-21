@@ -134,6 +134,7 @@ class CommonTextField extends StatelessWidget {
   final bool enable;
   final TextFieldActionType? type;
   final Function(String)? onTap;
+  final bool showFromTodayDate;
 
   CommonTextField({
     super.key,
@@ -143,6 +144,7 @@ class CommonTextField extends StatelessWidget {
     this.enable = true,
     this.onTap,
     this.type,
+    this.showFromTodayDate = false,
   });
 
   final _textFieldController = TextEditingController();
@@ -191,8 +193,9 @@ class CommonTextField extends StatelessWidget {
   _pickDate(BuildContext context) async {
     await showDatePicker(
       context: context,
-      // firstDate: DateTime(DateTime.now().year - 50, 1, 1),
-      firstDate: DateTime.now(),
+      firstDate: showFromTodayDate
+          ? DateTime.now()
+          : DateTime(DateTime.now().year - 50, 1, 1),
       lastDate: DateTime(DateTime.now().year + 50, 12, 31),
     ).then((val) {
       if (val != null && onTap != null) {

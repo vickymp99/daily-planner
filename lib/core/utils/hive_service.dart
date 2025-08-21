@@ -5,9 +5,12 @@ import 'package:hive/hive.dart';
 class HiveService {
   static Box<PlanModel> get userPlan =>
       Hive.box<PlanModel>(AppLocalStorageConstant.userPlan);
+  static Box<String> get userDetails =>
+      Hive.box<String>(AppLocalStorageConstant.userDetails);
 
   static init() async {
     await Hive.openBox<PlanModel>(AppLocalStorageConstant.userPlan);
+    await Hive.openBox<String>(AppLocalStorageConstant.userDetails);
   }
 
   static saveUserPlan(List<PlanModel> list) async {

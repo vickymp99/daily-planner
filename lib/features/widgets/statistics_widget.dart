@@ -37,99 +37,111 @@ class _StatisticsWidgetState extends State<StatisticsWidget> {
               final rawList = box.values.toList();
               plans = rawList;
               statisticsCubit.initPlan(state: state, list: plans);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // date show widget
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
-                        children: List.generate(
-                          growable: true,
-                          state.dates.length,
-                          (dateIndex) {
-                            return GestureDetector(
-                              onTap: () {
-                                statisticsCubit.updateIndex(
-                                  state: state,
-                                  indexValue: dateIndex,
-                                );
-                              },
-                              child: Card(
-                                elevation: 4.0,
-                                color: state.index == dateIndex
-                                    ? Colors.blueAccent.shade100
-                                    : null,
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  side: BorderSide(color: Colors.grey.shade300),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SizedBox(
-                                    width: 40,
-                                    child: Text(
-                                      state.dates[dateIndex],
-                                      style: DailyPlannerStyle.normalText(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
+              if (plans.isNotEmpty) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // date show widget
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Row(
+                          children: List.generate(
+                            growable: true,
+                            state.dates.length,
+                            (dateIndex) {
+                              return GestureDetector(
+                                onTap: () {
+                                  statisticsCubit.updateIndex(
+                                    state: state,
+                                    indexValue: dateIndex,
+                                  );
+                                },
+                                child: Card(
+                                  elevation: 4.0,
+                                  color: state.index == dateIndex
+                                      ? Colors.blueAccent.shade100
+                                      : null,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    side: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: SizedBox(
+                                      width: 40,
+                                      child: Text(
+                                        state.dates[dateIndex],
+                                        style: DailyPlannerStyle.normalText(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 48.0),
-                  Align(
-                    alignment: AlignmentDirectional.center,
-                    child: CustomCircularIndicator(
-                      totalValue: state.count['total']!.toDouble(),
-                      currentValue: state.count['completed']!.toDouble(),
-                      size: MediaQuery.of(context).size.width * .7,
-                      strokeWidth: 32,
+                    SizedBox(height: 48.0),
+                    Align(
+                      alignment: AlignmentDirectional.center,
+                      child: CustomCircularIndicator(
+                        totalValue: state.count['total']!.toDouble(),
+                        currentValue: state.count['completed']!.toDouble(),
+                        size: MediaQuery.of(context).size.width * .7,
+                        strokeWidth: 32,
+                      ),
+                    ),
+                    SizedBox(height: 32),
+                    Align(
+                      alignment: AlignmentDirectional.center,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Total Task : ${state.count['total']} ",
+                            style: DailyPlannerStyle.fieldLabelText(),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Completed : ${state.count['completed']} ",
+                            style: DailyPlannerStyle.fieldLabelText(),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Not completed : ${state.count['notCompleted']}",
+                            style: DailyPlannerStyle.fieldLabelText(),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Not start : ${state.count['notStart']}",
+                            style: DailyPlannerStyle.fieldLabelText(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return Center(
+                  child: SizedBox(
+                    child: Text(
+                      "No data",
+                      style: DailyPlannerStyle.labelText(),
                     ),
                   ),
-                  SizedBox(height: 32),
-                  Align(
-                    alignment: AlignmentDirectional.center,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Total Task : ${state.count['total']} ",
-                          style: DailyPlannerStyle.fieldLabelText(),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Completed : ${state.count['completed']} ",
-                          style: DailyPlannerStyle.fieldLabelText(),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Not completed : ${state.count['notCompleted']}",
-                          style: DailyPlannerStyle.fieldLabelText(),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Not start : ${state.count['notStart']}",
-                          style: DailyPlannerStyle.fieldLabelText(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
+                );
+              }
             },
           );
         } else {

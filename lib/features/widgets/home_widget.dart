@@ -22,10 +22,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     super.initState();
   }
 
-  void refreshPage() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     // initialize cubit
@@ -159,7 +155,6 @@ class _DateCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    appDebugPrint("id is ${docId}");
     return GestureDetector(
       onLongPress: () {},
       onTap: () {

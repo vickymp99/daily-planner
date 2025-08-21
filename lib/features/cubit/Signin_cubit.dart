@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:daily_planner/core/utils/common_utils.dart';
+import 'package:daily_planner/core/utils/data_repository.dart';
+import 'package:daily_planner/core/utils/firebase_service.dart';
+import 'package:daily_planner/core/utils/hive_service.dart';
 import 'package:daily_planner/features/usecase/login_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,12 +22,22 @@ class SignInCubit extends Cubit<SignInState> {
         password: formatPassword,
       );
       if (result is UserCredential) {
-        await FirebaseFirestore.instance.collection("user-details").add({
-          'name': userDetail.name,
-          'email': userDetail.email,
-          'dob': userDetail.dob,
-          'id': result.user!.uid,
-        });
+        await FirebaseFirestore.instance
+            .collection("user-details")
+            .add({
+              'name': userDetail.name,
+              'email': userDetail.email,
+              'dob': userDetail.dob,
+              'id': result.user!.uid,
+            })
+            .then((val) {
+              // save user in local storage
+              final dataRepository = DataRepository(FirebaseService());
+              dataRepository.listenChanges();
+              dataRepository.initLoad();
+              appDebugPrint("user name ${userDetail.name}");
+              HiveService.userDetails.put("userName", userDetail.name);
+            });
         emitState(SignInSuccessState());
       } else {
         emit(SignInErrorState(msg: result.toString()));

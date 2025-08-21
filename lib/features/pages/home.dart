@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:daily_planner/core/utils/common_utils.dart';
+import 'package:daily_planner/core/utils/hive_service.dart';
 import 'package:daily_planner/features/pages/newday_planner.dart';
 import 'package:daily_planner/features/widgets/home_widget.dart';
 import 'package:daily_planner/features/widgets/statistics_widget.dart';
@@ -20,31 +21,11 @@ class _HomeState extends State<Home> {
   ];
 
   int _currentIndex = 0;
-  String name = "";
+  // String name = HiveService.userDetails.get("userName", defaultValue: "")!;
   @override
   void initState() {
     super.initState();
     appDebugPrint("Current user id: ${FirebaseAuth.instance.currentUser!.uid}");
-
-    getName();
-  }
-
-  Future<void> getName() async {
-    var data = await FirebaseFirestore.instance
-        .collection('user-details')
-        .get();
-    if (data.docs.where((val) {
-      return val["id"] == FirebaseAuth.instance.currentUser!.uid;
-    }).isNotEmpty) {
-      QueryDocumentSnapshot<Map<String, dynamic>> userQuery = data.docs.where((
-        val,
-      ) {
-        return val["id"] == FirebaseAuth.instance.currentUser!.uid;
-      }).first;
-      // setState(() {
-      name = userQuery['name'];
-      // });
-    }
   }
 
   @override
@@ -57,7 +38,8 @@ class _HomeState extends State<Home> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CommonAppbar(
-                    title: "Welcome ${name.toUpperCase()}",
+                    // title: "Welcome ${name.toUpperCase()}",
+                    title: "Welcome",
                     isLogOut: true,
                     showThemeIcon: true,
                   ),
@@ -82,6 +64,7 @@ class _HomeState extends State<Home> {
           });
         },
       ),
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.noAnimation,
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
               onPressed: () => Navigator.push(
