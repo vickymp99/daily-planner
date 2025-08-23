@@ -14,12 +14,20 @@ class StatisticsWidget extends StatefulWidget {
   State<StatisticsWidget> createState() => _StatisticsWidgetState();
 }
 
-class _StatisticsWidgetState extends State<StatisticsWidget> {
+class _StatisticsWidgetState extends State<StatisticsWidget>
+    with SingleTickerProviderStateMixin {
   List<PlanModel> plans = [];
+  late Animation<double> circularAnimation;
+  late AnimationController controller;
 
   @override
   void initState() {
     super.initState();
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    );
+    controller.forward();
     BlocProvider.of<StatisticsCubit>(
       context,
     ).emitState(StatisticsSuccessState());
@@ -38,6 +46,12 @@ class _StatisticsWidgetState extends State<StatisticsWidget> {
               plans = rawList;
               statisticsCubit.initPlan(state: state, list: plans);
               if (plans.isNotEmpty) {
+                // initiate animation value
+                circularAnimation = Tween<double>(
+                  begin: 0,
+                  end: state.count['completed']!.toDouble(),
+                ).animate(controller);
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -57,6 +71,10 @@ class _StatisticsWidgetState extends State<StatisticsWidget> {
                                     state: state,
                                     indexValue: dateIndex,
                                   );
+                                  if(controller.isCompleted){
+                                    controller.reset();
+                                    controller.forward();
+                                  }
                                 },
                                 child: Card(
                                   elevation: 4.0,
@@ -94,11 +112,16 @@ class _StatisticsWidgetState extends State<StatisticsWidget> {
                     SizedBox(height: 48.0),
                     Align(
                       alignment: AlignmentDirectional.center,
-                      child: CustomCircularIndicator(
-                        totalValue: state.count['total']!.toDouble(),
-                        currentValue: state.count['completed']!.toDouble(),
-                        size: MediaQuery.of(context).size.width * .7,
-                        strokeWidth: 32,
+                      child: AnimatedBuilder(
+                        animation: circularAnimation,
+                        builder: (context, child) {
+                          return CustomCircularIndicator(
+                            totalValue: state.count['total']!.toDouble(),
+                            currentValue: circularAnimation.value,
+                            size: MediaQuery.of(context).size.width * .7,
+                            strokeWidth: 32,
+                          );
+                        },
                       ),
                     ),
                     SizedBox(height: 32),
