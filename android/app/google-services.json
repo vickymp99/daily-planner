@@ -12,7 +12,20 @@
           "package_name": "com.example.daily_planner"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "840639005365-d7mkj8dh5qg1qhe2oknfab8f80c1uhj3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.daily_planner",
+            "certificate_hash": "b021d59bc42a0136a2ebe361f7dac24f8206a3c1"
+          }
+        },
+        {
+          "client_id": "840639005365-563hrg14u64vkrkup4nef49jmf06ofr8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCHznfQp7F6Uh52QfDwiqXdYFl2E6Wxct8"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "840639005365-563hrg14u64vkrkup4nef49jmf06ofr8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "840639005365-380kn64ickchnirhumsb20tnfiasf7nq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dailyPlanner"
+              }
+            }
+          ]
         }
       }
     }

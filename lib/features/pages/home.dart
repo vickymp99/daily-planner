@@ -32,6 +32,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      
       body: SafeArea(
         child: _currentIndex == 0
             ? Column(

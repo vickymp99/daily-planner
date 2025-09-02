@@ -1,11 +1,12 @@
 import 'package:daily_planner/core/constant/app_enum.dart';
 import 'package:daily_planner/core/constant/app_theme.dart';
-import 'package:daily_planner/core/constant/daily_palnner_style.dart';
+import 'package:daily_planner/core/constant/daily_planner_style.dart';
 import 'package:daily_planner/core/utils/hive_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 
 void appDebugPrint(Object? object) {
@@ -68,9 +69,22 @@ class CommonUtils {
     ).then((val) async {
       if (val != null && val) {
         await HiveService.userPlan.clear();
-        FirebaseAuth.instance.signOut();
+        _signOutApp();
       }
     });
+  }
+
+  // user signout
+  static _signOutApp() async {
+    final user = FirebaseAuth.instance;
+    String? otherSignOut;
+    for (final providerProfile in user.currentUser!.providerData) {
+      otherSignOut = providerProfile.providerId;
+    }
+    await user.signOut();
+    if (otherSignOut == "google.com") {
+      await GoogleSignIn().signOut();
+    }
   }
 }
 

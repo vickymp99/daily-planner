@@ -1,4 +1,4 @@
-import 'package:daily_planner/core/constant/daily_palnner_style.dart';
+import 'package:daily_planner/core/constant/daily_planner_style.dart';
 import 'package:daily_planner/core/utils/circular_indicator.dart';
 import 'package:daily_planner/core/utils/hive_service.dart';
 import 'package:daily_planner/features/cubit/statistics_cubit.dart';
@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class StatisticsWidget extends StatefulWidget {
-  StatisticsWidget({super.key});
+  const StatisticsWidget({super.key});
 
   @override
   State<StatisticsWidget> createState() => _StatisticsWidgetState();
@@ -44,8 +44,8 @@ class _StatisticsWidgetState extends State<StatisticsWidget>
             builder: (BuildContext context, box, Widget? child) {
               final rawList = box.values.toList();
               plans = rawList;
-              statisticsCubit.initPlan(state: state, list: plans);
               if (plans.isNotEmpty) {
+                statisticsCubit.initPlan(state: state, list: plans);
                 // initiate animation value
                 circularAnimation = Tween<double>(
                   begin: 0,
@@ -71,7 +71,7 @@ class _StatisticsWidgetState extends State<StatisticsWidget>
                                     state: state,
                                     indexValue: dateIndex,
                                   );
-                                  if(controller.isCompleted){
+                                  if (controller.isCompleted) {
                                     controller.reset();
                                     controller.forward();
                                   }
@@ -89,7 +89,7 @@ class _StatisticsWidgetState extends State<StatisticsWidget>
                                     ),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 16.0),
                                     child: SizedBox(
                                       width: 40,
                                       child: Text(

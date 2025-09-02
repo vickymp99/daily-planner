@@ -1,4 +1,4 @@
-import 'package:daily_planner/core/constant/daily_palnner_style.dart';
+import 'package:daily_planner/core/constant/daily_planner_style.dart';
 import 'package:daily_planner/core/utils/common_utils.dart';
 import 'package:daily_planner/features/cubit/login_cubit.dart';
 import 'package:flutter/material.dart';

@@ -7,8 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(LoginInitialState());
-
-  bool isVisibility = false;
+  bool _isVisibility = false;
+  bool get visibility => _isVisibility;
 
   // Login User
   loginUser(String userName, String password) async {
@@ -28,12 +28,6 @@ class LoginCubit extends Cubit<LoginState> {
               dataRepository.listenChanges();
               dataRepository.initLoad();
             });
-
-        // if (user is UserCredential) {
-        //   emit(LoginSuccessState());
-        // } else {
-        //   emitState(LoginErrorState(msg: user.toString()));
-        // }
       } catch (e) {
         emitState(LoginErrorState(msg: e.toString()));
       }
@@ -42,6 +36,7 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
+  // checkCredential
   bool _checkCredential(String name, String password) {
     return name.isNotEmpty &&
             name.contains("@") &&
@@ -51,11 +46,13 @@ class LoginCubit extends Cubit<LoginState> {
         : false;
   }
 
+  // changeVisibility
   changeVisibility(bool value) {
-    isVisibility = value;
-    emitState(state);
+    _isVisibility = value;
+    emitState(LoginBuildState());
   }
 
+  // send password reset link to email using forgot password
   forgotPassword(String email) async {
     if (!email.contains("@")) return;
     final String formatEmail = email.trim();
@@ -69,9 +66,19 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
+  // emit the state based on the current state
   emitState(LoginState state) {
-    emit(_LoginChangeState());
-    emit(state);
+    if (state is _LoginChangeState) {
+      emit(state);
+    } else {
+      emit(_LoginChangeState());
+      emit(state);
+    }
+  }
+
+  // Login using google account
+  Future<User?> loginWithGoogle() async {
+    var result = await FirebaseService.signInWithGoogle();
   }
 }
 
@@ -87,24 +94,8 @@ class _LoginChangeState extends LoginState {
   List<Object?> get props => [];
 }
 
-// Log in state
-class LoginLoadingState extends LoginState {
-  @override
-  List<Object?> get props => [];
-}
-
-class LoginSuccessState extends LoginState {
-  @override
-  List<Object?> get props => [];
-}
-
+// Log build in state
 class LoginBuildState extends LoginState {
-  bool isVisibility = false;
-
-  changeVisibility(bool value) {
-    isVisibility = value;
-  }
-
   @override
   List<Object?> get props => [];
 }

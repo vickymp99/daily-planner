@@ -80,8 +80,6 @@ class HomeCubit extends Cubit<HomeState> {
     // appDebugPrint(date);
     return list.where((x) => x.date == date).toList().first.id;
   }
-
-
 }
 
 abstract class HomeState extends Equatable {}
@@ -113,19 +111,22 @@ class HomeSuccessState extends HomeState {
   }
 
   setInitValue(List<PlanModel> userList) {
+    // separate date from the list and store it the separate dates list
     dates = userList.map((element) => element.date).toList();
+    // sort the available dates ascending order
     dates.sort((a, b) => a.compareTo(b));
+    // based on the index,we match the date and store the planList available in the date
     if (userList.where((element) => element.date == dates[index]).isNotEmpty) {
       plans = userList
           .where((element) => element.date == dates[index])
           .first
           .planList;
       DateFormat format = DateFormat("hh a");
+      //sort the available time ascending order
       plans.sort(
         (a, b) => format.parse(a.time).compareTo(format.parse(b.time)),
       );
     }
-
     // appDebugPrint("dates..$dates");
     // appDebugPrint("plans..$plans");
   }

@@ -11,7 +11,6 @@ class Login extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-
           child: Column(
             children: [
               CommonAppbar(title: "Log in"),
